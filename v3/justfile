@@ -52,9 +52,10 @@ start-docker-run-deps:
     docker compose up --wait auth_hook jaeger
 
 # pull / build all docker deps
-docker-refresh:
+docker-refresh: stop-docker
     docker compose -f ci.docker-compose.yaml pull postgres_connector
     docker compose -f ci.docker-compose.yaml build custom_connector
+
 alias refresh-docker := docker-refresh
 
 # stop all the docker deps
@@ -84,7 +85,6 @@ watch: start-docker-test-deps start-docker-run-deps
       --otlp-endpoint http://localhost:4317 \
       --authn-config-path static/auth/auth_config.json \
       --metadata-path static/sample-schema.json \
-      --unstable-feature enable-subscriptions \
       --unstable-feature enable-json-api \
       --expose-internal-errors'
 
@@ -174,6 +174,5 @@ run METADATA_PATH="static/sample-schema.json": start-docker-test-deps start-dock
     --otlp-endpoint http://localhost:4317 \
     --authn-config-path static/auth/auth_config.json \
     --metadata-path {{ METADATA_PATH }} \
-    --unstable-feature enable-subscriptions \
     --unstable-feature enable-json-api \
     --expose-internal-errors

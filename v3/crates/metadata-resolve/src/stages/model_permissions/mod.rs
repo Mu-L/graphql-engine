@@ -7,8 +7,8 @@ use indexmap::IndexMap;
 use open_dds::{data_connector::DataConnectorName, models::ModelName, types::CustomTypeName};
 use std::collections::BTreeMap;
 pub use types::{
-    ArgumentPresets, FilterPermission, ModelPredicate, ModelTargetSource, ModelWithPermissions,
-    SelectPermission, UnaryComparisonOperator,
+    FilterPermission, ModelPredicate, ModelTargetSource, ModelWithPermissions, SelectPermission,
+    UnaryComparisonOperator,
 };
 mod model_permission;
 pub(crate) use model_permission::resolve_model_predicate_with_type;
@@ -81,6 +81,7 @@ pub fn resolve(
                 .and_then(|bool_exp| bool_exp.graphql.as_ref());
 
             let select_permissions = model_permission::resolve_model_select_permissions(
+                &metadata_accessor.flags,
                 &model.model,
                 subgraph,
                 permissions,

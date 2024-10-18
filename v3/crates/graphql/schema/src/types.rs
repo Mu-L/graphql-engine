@@ -22,9 +22,9 @@ use open_dds::{
 use metadata_resolve::{
     self, data_connectors::ArgumentPresetValue, deserialize_non_string_key_btreemap,
     deserialize_qualified_btreemap, serialize_non_string_key_btreemap,
-    serialize_qualified_btreemap, DataConnectorLink, FieldPresetInfo, NdcColumnForComparison,
-    OrderByExpressionIdentifier, Qualified, QualifiedTypeReference, TypeMapping,
-    ValueExpressionOrPredicate,
+    serialize_qualified_btreemap, ArgumentPresets, DataConnectorLink, FieldPresetInfo,
+    NdcColumnForComparison, OrderByExpressionIdentifier, Qualified, QualifiedTypeReference,
+    TypeMapping,
 };
 
 use json_ext::HashMapWithJsonKey;
@@ -323,34 +323,6 @@ pub enum Annotation {
     Input(InputAnnotation),
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Default)]
-/// Preset arguments for models or commands
-pub struct ArgumentPresets {
-    #[serde(
-        serialize_with = "serialize_non_string_key_btreemap",
-        deserialize_with = "deserialize_non_string_key_btreemap"
-    )]
-    pub argument_presets:
-        BTreeMap<ArgumentNameAndPath, (QualifiedTypeReference, ValueExpressionOrPredicate)>,
-}
-
-impl Display for ArgumentPresets {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Debug::fmt(&self.argument_presets, f)
-    }
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-/// Argument name with optional field path, if part of the argument has to be
-/// preset
-pub struct ArgumentNameAndPath {
-    /// Name of the ndc function/procedure argument
-    pub ndc_argument_name: Option<DataConnectorArgumentName>,
-    /// Optional path of field names to traverse to get to a field, in case of
-    /// complex input object types
-    pub field_path: Vec<DataConnectorColumnName>,
-}
-
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Display)]
 pub enum NamespaceAnnotation {
     /// any arguments that we should prefill for a command or type
@@ -359,6 +331,7 @@ pub enum NamespaceAnnotation {
     Model {
         filter: metadata_resolve::FilterPermission,
         argument_presets: ArgumentPresets,
+        allow_subscriptions: bool,
     },
     /// Field presets for an input field.
     ///
